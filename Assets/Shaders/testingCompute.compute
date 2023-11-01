@@ -1,0 +1,48 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+Texture2D<float4> InputTexture;
+Texture2D<float4> texture1;
+Texture2D<float4> texture2;
+
+float Resolution;
+
+int eyeIndex;
+
+float testFloat;
+float4 testColor;
+float3 testPos;
+
+//float2 uv;
+
+float2 translate;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+
+    //height and width of result RenderTexture
+    //uv = float2((float)id.x/4096, (float)id.y/4096)
+
+    translate = float2(0, 1024);
+
+    //0 == Left Eye, Bottom
+    if(eyeIndex == 0)
+    {
+        Result[id.xy] = float4(InputTexture[id.xy].x, InputTexture[id.xy].y, InputTexture[id.xy].z, 1.0);
+        //Result[id.xy - translate] = float4(testColor.r, testColor.g, 0, testColor.a);
+    }
+    
+    // 1 == Right Eye, Top
+    //Magenta for debug
+    else
+    {
+        Result[id.xy + translate] = float4(InputTexture[id.xy].x, 0, InputTexture[id.xy].z, 1.0);
+        //Result[id.xy + translate] = float4(testColor.r, 0, testColor.b, testColor.a);
+    }
+    
+    //Result[id.xy] = testColor;
+}

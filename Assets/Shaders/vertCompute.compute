@@ -1,0 +1,72 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+Texture2D<float4> InputTexture;
+
+RWByteAddressBuffer vertexBuffer;
+int stride;
+
+int eyeIndex;
+
+//uniform sampler2D _MainTex; -> InputTexture
+Texture2D<float4> _depths;
+
+float _cameraIPD;
+float _cameraFD;
+float _xrfovy;
+float _xrAspect;
+float3 _xrViewDir;
+float _cameraEye;
+
+float _imgIndex;
+float3 _cameraPos;
+
+float _testFloat;
+
+float4x4 _orthoProjection;
+
+float4x4 UNITY_MATRIX_P;
+float4x4 UNITY_MATRIX_MV;
+
+//float2 uv;
+
+float2 translate;
+
+float4 textureCoordinates;
+float4 color;
+float pt_depth;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+
+    //height and width of result RenderTexture
+    //uv = float2((float)id.x/4096, (float)id.y/4096)
+
+    uint index = id.x * stride;
+
+    translate = float2(0, 1024);
+
+    //0 == Left Eye, Bottom
+    if(eyeIndex == 0)
+    {
+        //Result[id.xy] = float4(InputTexture[id.xy].x, InputTexture[id.xy].y, InputTexture[id.xy].z, 1.0);
+        //Result[id.xy - translate] = float4(testColor.r, testColor.g, 0, testColor.a);
+
+        Result[id.xy] = float4(vertexBuffer.Load3(index).x, 0, 0, 1.0);
+
+    }
+    
+    // 1 == Right Eye, Top
+    //Magenta for debug
+    else
+    {
+        //Result[id.xy + translate] = float4(InputTexture[id.xy].x, 0, InputTexture[id.xy].z, 1.0);
+        //Result[id.xy + translate] = float4(testColor.r, 0, testColor.b, testColor.a);
+    }
+    
+    //Result[id.xy] = testColor;
+}
